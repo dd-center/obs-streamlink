@@ -13,7 +13,7 @@ else()
 endif()
 
 add_library(obs-streamlink MODULE
-	main.cpp)
+	obs-streamlink.cpp)
 
 target_include_directories(obs-streamlink PUBLIC "${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api")
 target_link_libraries(obs-streamlink libobs)
