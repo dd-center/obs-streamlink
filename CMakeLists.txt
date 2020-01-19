@@ -28,12 +28,11 @@ if(WIN32)
 	string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
 	message("${CMAKE_CXX_FLAGS_RELEASE}")
 
+	set(OBS_BUILDDIR_ARCH "build")
 	if(ARCH EQUAL 64)
 		set(OBS_ARCH_NAME "64bit")
-		set(OBS_BUILDDIR_ARCH "build64")
 	else()
 		set(OBS_ARCH_NAME "32bit")
-		set(OBS_BUILDDIR_ARCH "build32")
 		add_definitions(/arch:SSE2)
 	endif()
 
@@ -48,32 +47,34 @@ if(WIN32)
 		COMMAND if $<CONFIG:Release>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
 				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink"
-				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}")
+				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}") else (call)
 
 		COMMAND if $<CONFIG:Release>==1 (
 			"${CMAKE_COMMAND}" -E copy_directory
 				"${PROJECT_SOURCE_DIR}/data"
-				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink")
+				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink") else (call)
 
 		COMMAND if $<CONFIG:Release>==1 (
 			"${CMAKE_COMMAND}" -E copy
 				"$<TARGET_FILE:obs-streamlink>"
-				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}")
+				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}") else (call)
+		)
 
+	add_custom_command(TARGET obs-streamlink POST_BUILD
 		# Copy to obs-studio dev environment for immediate testing
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E copy
 				"$<TARGET_FILE:obs-streamlink>"
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${OBS_ARCH_NAME}")
+				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${OBS_ARCH_NAME}") else (call)
 
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink")
+				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink") else (call)
 
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E copy_directory
 				"${PROJECT_SOURCE_DIR}/data"
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink")
+				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink") else (call)
 	)
 endif()
 

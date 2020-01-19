@@ -14,13 +14,13 @@ OBS_MODULE_USE_DEFAULT_LOCALE("obs-streamlink", "en-US")
 #define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
 #define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
 
-bool obs_module_load(void)
+bool obs_module_load()
 {
-	info("Initialized");
+	info("Initialized!");
     return true;
 }
 
-MODULE_EXPORT const char* obs_module_description(void)
+MODULE_EXPORT const char* obs_module_description()
 {
 	return "OBS source plugin to receive stream using streamlink.";
 }
