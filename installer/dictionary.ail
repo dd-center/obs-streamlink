@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<DICTIONARY type="multilanguage">
+  <!-- AI defaults -->
+  <ENTRY id="AI.LaunchCondition.RequireBootstrapper">
+    <STRING lang="ja" value="このパッケージは、Bootstrapperからのみ実行できます。"/>
+    <STRING lang="zh" value="这个安装包只能从 Bootstrapper 启动。"/>
+  </ENTRY>
+  <!-- Control table -->
+  <ENTRY id="Control.Text.AdminBrowseDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.AdminInstallPointDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.BrowseDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.CustomizeDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.DiskCostDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.FilesInUse#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.FolderDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.FolderDlg#Verify_Text">
+    <STRING lang="ja" value="選択したパスに「\bin\64bit\obs64.exe」があることに注意してください。"/>
+    <STRING lang="zh" value="请注意选择的目录中需要包含 &quot;\bin\64bit\obs64.exe&quot;。"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.MaintenanceTypeDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.MsiRMFilesInUse#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.OutOfDiskDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.OutOfRbDiskDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.ProgressDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyReadyDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRemoveDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <ENTRY id="Control.Text.VerifyRepairDlg#Logo">
+    <STRING lang="en" value="OBS Streamlink Installer"/>
+    <STRING lang="ja" value="OBS Streamlink Installer"/>
+    <STRING lang="zh" value="OBS Streamlink Installer"/>
+  </ENTRY>
+  <!-- Property table -->
+  <ENTRY id="Property.ARPCOMMENTS">
+    <STRING lang="ja" value="Streamlinkを使用してストリームを受信するOBSソースプラグイン。"/>
+    <STRING lang="zh" value="使用 Streamlink 接收直播流的 OBS 插件。"/>
+  </ENTRY>
+  <ENTRY id="Property.DlgContinue">
+    <STRING lang="ja" value="エラー"/>
+    <STRING lang="zh" value="错误"/>
+  </ENTRY>
+  <ENTRY id="Property.DlgMessage">
+    <STRING lang="ja" value="「obs-studio」フォルダーを選択し、その中に「bin\64bit\obs64.exe」があることを確認してください。"/>
+    <STRING lang="zh" value="请确认已选择的 obs-studio 文件夹中包含“bin\64bit\obs64.exe”。"/>
+  </ENTRY>
+  <ENTRY id="OBSFolderDlg#Text">
+    <STRING lang="en" value="Choose the obs-studio folder you&apos;ve installed, then click &quot;[Text_Next]&quot;. To install to a different folder, enter it below or click &quot;Browse&quot;."/>
+    <STRING lang="ja" value="インストールした obs-studio フォルダーを選択し、「[Text_Next]」をクリックします。 別のフォルダーにインストールするには、下に入力するか、「参照」をクリックします。"/>
+    <STRING lang="zh" value="选择这台电脑上的 obs-studio 文件夹，然后单击“[Text_Next]”。若要安装在一个不同的目录，键入地址或单击“浏览”。"/>
+  </ENTRY>
+  <ENTRY id="OBSFolderDlg#Title">
+    <STRING lang="ja" value="obs-studioフォルダーを選択"/>
+    <STRING lang="zh" value="选择 obs-studio 文件夹"/>
+  </ENTRY>
+</DICTIONARY>

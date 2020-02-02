@@ -94,3 +94,7 @@ out
 temp
 CMakeSettings.json
 /t2
+
+# Installer cache
+**/dist/**
+**/installer-cache/**
