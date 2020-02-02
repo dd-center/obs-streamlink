@@ -15,8 +15,9 @@
     <ROW Property="ARPNOREPAIR" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="ARPURLINFOABOUT" Value="https://github.com/dd-center/obs-streamlink"/>
     <ROW Property="ARPURLUPDATEINFO" Value="https://github.com/dd-center/obs-streamlink"/>
-    <ROW Property="DlgContinue" Value="Continue" ValueLocId="Property.DlgContinue"/>
-    <ROW Property="DlgMessage" Value="Please check that you selected the &quot;obs-studio&quot; folder and confirmed that there&apos;s &quot;bin\64bit\obs64.exe&quot; in it. If not, click the &quot;No&quot; button." ValueLocId="Property.DlgMessage"/>
+    <ROW Property="CheckResult" Value="1"/>
+    <ROW Property="DlgContinue" Value="Error" ValueLocId="Property.DlgContinue"/>
+    <ROW Property="DlgMessage" Value="Please check that you selected the &quot;obs-studio&quot; folder and confirmed that there&apos;s &quot;bin\64bit\obs64.exe&quot; in it." ValueLocId="Property.DlgMessage"/>
     <ROW Property="InstallPathName" Value="InstallPath"/>
     <ROW Property="MSIFASTINSTALL" MultiBuildValue="DefaultBuild:1"/>
     <ROW Property="Manufacturer" Value="DD Center"/>
@@ -103,6 +104,7 @@
     <ROW Property="OBS_PATH" Signature_="AppSearchSign_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
+    <ROW Name="PowerShellScriptLauncher.dll" SourcePath="&lt;AI_CUSTACTS&gt;PowerShellScriptLauncher.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="lzmaextractor.dll" SourcePath="&lt;AI_CUSTACTS&gt;lzmaextractor.dll"/>
@@ -139,7 +141,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="1"/>
-    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL AND ( OBS_BTN_PRESSED = &quot;IDYES&quot; )" Ordering="207"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="NewDialog" Argument="VerifyReadyDlg" Condition="AI_INSTALL AND ( CheckResult = &quot;0&quot; )" Ordering="213"/>
     <ROW Dialog_="FolderDlg" Control_="Back" Event="NewDialog" Argument="WelcomeDlg" Condition="AI_INSTALL" Ordering="1"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_INSTALL" Ordering="197"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="FolderDlg" Condition="AI_INSTALL" Ordering="201"/>
@@ -161,9 +163,11 @@
     <ROW Dialog_="VerifyReadyDlg" Control_="Install" Event="EndDialog" Argument="Return" Condition="AI_PATCH" Ordering="199"/>
     <ROW Dialog_="VerifyReadyDlg" Control_="Back" Event="NewDialog" Argument="PatchWelcomeDlg" Condition="AI_PATCH" Ordering="203"/>
     <ROW Dialog_="FolderDlg" Control_="Browse" Event="[_BrowseProperty]" Argument="OBS_PATH" Condition="1" Ordering="100" MsiKey="FolderDlg#Browse#[_BrowseProperty]#APPDIR#1"/>
-    <ROW Dialog_="FolderDlg" Control_="Next" Event="SetTargetPath" Argument="OBS_PATH" Condition="OBS_BTN_PRESSED = &quot;IDYES&quot;" Ordering="206" MsiKey="FolderDlg#Next#SetTargetPath#APPDIR#1"/>
-    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="MessageBox" Condition="AI_INSTALL" Ordering="205"/>
-    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="AI_DATA_SETTER_1" Condition="AI_INSTALL" Ordering="204"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="SetTargetPath" Argument="OBS_PATH" Condition="CheckResult = &quot;0&quot;" Ordering="212" MsiKey="FolderDlg#Next#SetTargetPath#APPDIR#1"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="CheckOBSFolder" Condition="AI_INSTALL" Ordering="208"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="AI_DATA_SETTER_2" Condition="AI_INSTALL" Ordering="207"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="MessageBox" Condition="AI_INSTALL AND ( CheckResult = &quot;1&quot; )" Ordering="211"/>
+    <ROW Dialog_="FolderDlg" Control_="Next" Event="DoAction" Argument="AI_DATA_SETTER_1" Condition="AI_INSTALL AND ( CheckResult = &quot;1&quot; )" Ordering="210"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="APPDIR" Component_="APPDIR" ManualDelete="true"/>
@@ -173,7 +177,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
     <ROW Action="AI_BACKUP_AI_SETUPEXEPATH" Type="51" Source="AI_SETUPEXEPATH_ORIGINAL" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_DATA_SETTER" Type="51" Source="AI_ExtractFiles" Target="[AI_SETUPEXEPATH]"/>
-    <ROW Action="AI_DATA_SETTER_1" Type="51" Source="CustomActionData" Target="[DlgMessage] |[DlgContinue] |MB_YESNO,MB_ICONWARNING,MB_DEFBUTTON1|OBS_BTN_PRESSED|[CLIENTPROCESSID]"/>
+    <ROW Action="AI_DATA_SETTER_1" Type="51" Source="CustomActionData" Target="[DlgMessage] |[DlgContinue] |MB_OK,MB_ICONSTOP,MB_DEFBUTTON1||[CLIENTPROCESSID]"/>
+    <ROW Action="AI_DATA_SETTER_2" Type="51" Source="CustomActionData" Target="AEkAcwA2ADQAQgBpAHQAAgAxAAEASQBzAEYAYQBsAGwAYgBhAGMAawAzADIAQgBpAHQAAgABAFAAYQByAGEAbQBzAAIAAQBTAGMAcgBpAHAAdAACACQAbwBiAHMAUABhAHQAaAAgAD0AIABBAEkAXwBHAGUAdABNAHMAaQBQAHIAbwBwAGUAcgB0AHkAIABPAEIAUwBfAFAAQQBUAEgADQAKAEkAZgAgACgAVABlAHMAdAAtAFAAYQB0AGgAIAAoACQAbwBiAHMAUABhAHQAaAAgACsAIAAiAGIAaQBuAFwANgA0AGIAaQB0AFwAbwBiAHMANgA0AC4AZQB4AGUAIgApACkAIABbAFwAewBdAA0ACgBBAEkAXwBTAGUAdABNAHMAaQBQAHIAbwBwAGUAcgB0AHkAIABDAGgAZQBjAGsAUgBlAHMAdQBsAHQAIAAwAA0ACgBbAFwAfQBdAA0ACgBFAGwAcwBlACAAWwBcAHsAXQANAAoAQQBJAF8AUwBlAHQATQBzAGkAUAByAG8AcABlAHIAdAB5ACAAQwBoAGUAYwBrAFIAZQBzAHUAbAB0ACAAMQANAAoAWwBcAH0AXQANAAo="/>
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
     <ROW Action="AI_DeleteCadLzma" Type="51" Source="AI_DeleteLzma" Target="[AI_SETUPEXEPATH]"/>
     <ROW Action="AI_DeleteLzma" Type="1025" Source="lzmaextractor.dll" Target="DeleteLZMAFiles"/>
@@ -193,7 +198,8 @@
     <ROW Action="AI_ResolveKnownFolders" Type="1" Source="aicustact.dll" Target="AI_ResolveKnownFolders"/>
     <ROW Action="AI_SHOW_LOG" Type="65" Source="aicustact.dll" Target="LaunchLogFile" WithoutSeq="true"/>
     <ROW Action="AI_STORE_LOCATION" Type="51" Source="ARPINSTALLLOCATION" Target="[APPDIR]"/>
-    <ROW Action="MessageBox" Type="1" Source="aicustact.dll" Target="MsgBox" WithoutSeq="true" Options="1" AdditionalSeq="AI_DATA_SETTER_1"/>
+    <ROW Action="CheckOBSFolder" Type="65" Source="PowerShellScriptLauncher.dll" Target="RunPowerShellScript" WithoutSeq="true" Options="1" AdditionalSeq="AI_DATA_SETTER_2"/>
+    <ROW Action="MessageBox" Type="65" Source="aicustact.dll" Target="MsgBox" WithoutSeq="true" Options="1" AdditionalSeq="AI_DATA_SETTER_1"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="DefaultBuild:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>

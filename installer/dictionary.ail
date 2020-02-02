@@ -91,12 +91,12 @@
     <STRING lang="zh" value="使用 Streamlink 接收直播流的 OBS 插件。"/>
   </ENTRY>
   <ENTRY id="Property.DlgContinue">
-    <STRING lang="ja" value="継続する"/>
-    <STRING lang="zh" value="继续"/>
+    <STRING lang="ja" value="エラー"/>
+    <STRING lang="zh" value="错误"/>
   </ENTRY>
   <ENTRY id="Property.DlgMessage">
-    <STRING lang="ja" value="「obs-studio」フォルダーを選択し、その中に「bin\64bit\obs64.exe」があることを確認してください。 そうでない場合は、「いいえ」ボタンをクリックします。"/>
-    <STRING lang="zh" value="请确认已选择的 obs-studio 文件夹中包含“bin\64bit\obs64.exe”。否则，请单击“否”并修改路径。"/>
+    <STRING lang="ja" value="「obs-studio」フォルダーを選択し、その中に「bin\64bit\obs64.exe」があることを確認してください。"/>
+    <STRING lang="zh" value="请确认已选择的 obs-studio 文件夹中包含“bin\64bit\obs64.exe”。"/>
   </ENTRY>
   <ENTRY id="OBSFolderDlg#Text">
     <STRING lang="en" value="Choose the obs-studio folder you&apos;ve installed, then click &quot;[Text_Next]&quot;. To install to a different folder, enter it below or click &quot;Browse&quot;."/>
