@@ -1,49 +1,60 @@
 cmake_minimum_required(VERSION 3.5)
+set(CMAKE_CXX_STANDARD 17)
 project(obs-streamlink)
 
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
+
+find_package(FFmpeg REQUIRED
+	COMPONENTS avcodec avfilter avdevice avutil swscale avformat swresample)
+find_package(Python3 COMPONENTS Interpreter Development)
+find_library(Python3Gen NAME "python38.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
+find_library(Python3Gen_Debug NAME "python38_d.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
+
+set(CMAKE_PREFIX_PATH "${QTDIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
 
-include(FindLibObs.cmake)
-find_package(LibObs REQUIRED)
-
-if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-	set(ARCH 64)
-else()
-	set(ARCH 32)
-endif()
+find_package(Qt5Core REQUIRED)
+find_package(Qt5Widgets REQUIRED)
 
 add_library(obs-streamlink MODULE
-	obs-streamlink.cpp)
+	obs-streamlink.cpp
+	streamlink-source.cpp
+	media-playback/decode.cpp
+	media-playback/media.cpp
+	python-streamlink.cpp
+	)
+target_link_libraries(obs-streamlink PRIVATE
+	"${LIBOBS_LIB}"
+	"${W32_PTHREADS_LIB}"
+	"${OBS_FRONTEND_LIB}"
+	Qt5::Core
+	Qt5::Widgets
+	${FFMPEG_LIBRARIES}
+	delayimp)
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+	target_link_libraries(obs-streamlink PRIVATE "${Python3Gen}")
+else()
+	target_link_libraries(obs-streamlink PRIVATE "${Python3Gen}")
+endif()
+target_include_directories(obs-streamlink PRIVATE
+	${Qt5Core_INCLUDES}
+	${Qt5Widgets_INCLUDES}
+	${FFMPEG_INCLUDE_DIRS}
+	"${LIBOBS_INCLUDE_DIR}"
+	"${OBS_FRONTEND_INCLUDE_DIR}"
+	"${Python3_INCLUDE_DIRS}"
+)
+set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
+target_link_options(obs-streamlink PUBLIC
+        "/NODEFAULTLIB:python38_d.lib"
+        "/NODEFAULTLIB:python3_d.lib"
+        "/NODEFAULTLIB:python38.lib"
+        "/NODEFAULTLIB:python3.lib"
+		"/delayload:python38.dll")
 
-target_include_directories(obs-streamlink PUBLIC "${LIBOBS_INCLUDE_DIR}/../UI/obs-frontend-api")
-target_link_libraries(obs-streamlink libobs)
-
-# Windows
-if(WIN32)
-	set(OBS_FRONTEND_LIB "OBS_FRONTEND_LIB-NOTFOUND" CACHE FILEPATH "OBS frontend library")
-	if(OBS_FRONTEND_LIB EQUAL "OBS_FRONTEND_LIB-NOTFOUND")
-		message(FATAL_ERROR "Could not find OBS Frontend API\'s library !")
-	endif()
-
-	string(REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}")
-	message("${CMAKE_CXX_FLAGS_RELEASE}")
-
-	set(OBS_BUILDDIR_ARCH "build")
-	if(ARCH EQUAL 64)
-		set(OBS_ARCH_NAME "64bit")
-	else()
-		set(OBS_ARCH_NAME "32bit")
-		add_definitions(/arch:SSE2)
-	endif()
-
-	find_package(w32-pthreads REQUIRED)
-
-	target_link_libraries(obs-streamlink
-		"${OBS_FRONTEND_LIB}"
-		w32-pthreads)
-
-	set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
-	add_custom_command(TARGET obs-streamlink POST_BUILD
+add_custom_command(TARGET obs-streamlink POST_BUILD
 		COMMAND if $<CONFIG:Release>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
 				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink"
@@ -59,56 +70,19 @@ if(WIN32)
 				"$<TARGET_FILE:obs-streamlink>"
 				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}") else (call)
 		)
-
-	add_custom_command(TARGET obs-streamlink POST_BUILD
+add_custom_command(TARGET obs-streamlink POST_BUILD
 		# Copy to obs-studio dev environment for immediate testing
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E copy
 				"$<TARGET_FILE:obs-streamlink>"
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/obs-plugins/${OBS_ARCH_NAME}") else (call)
+				"D:/product/obs-studio-master/build/rundir/Debug/obs-plugins/64bit/${OBS_ARCH_NAME}") else (call)
 
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E make_directory
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink") else (call)
+				"D:/product/obs-studio-master/build/rundir/Debug/data/obs-plugins/obs-streamlink") else (call)
 
 		COMMAND if $<CONFIG:Debug>==1 (
 			"${CMAKE_COMMAND}" -E copy_directory
 				"${PROJECT_SOURCE_DIR}/data"
-				"${LIBOBS_INCLUDE_DIR}/../${OBS_BUILDDIR_ARCH}/rundir/$<CONFIG>/data/obs-plugins/obs-streamlink") else (call)
+				"D:/product/obs-studio-master/build/rundir/Debug/data/obs-plugins/obs-streamlink") else (call)
 	)
-endif()
-
-# OSX
-if(APPLE)
-	set_target_properties(obs-streamlink PROPERTIES PREFIX "")
-	target_link_libraries(obs-streamlink
-		"${OBS_FRONTEND_LIB}")
-endif()
-
-# Linux
-if(UNIX AND NOT APPLE)
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -mtune=core2 -Ofast")
-
-	if(ARCH EQUAL 64)
-		set(ARCH_NAME "x86_64")
-	else()
-		set(ARCH_NAME "i686")
-	endif()
-
-	set_target_properties(obs-streamlink PROPERTIES PREFIX "")
-
-	target_link_libraries(obs-streamlink
-		obs-frontend-api)
-
-	file(GLOB locale_files data/locale/*.ini)
-        execute_process(COMMAND uname -m COMMAND tr -d '\n' OUTPUT_VARIABLE UNAME_MACHINE)
-
-	install(TARGETS obs-streamlink
-                LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/obs-plugins)
-	# Dirty fix for Ubuntu
-	install(TARGETS obs-streamlink
-		LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/${UNAME_MACHINE}-linux-gnu/obs-plugins)
-
-	install(FILES ${locale_files}
-		DESTINATION "${CMAKE_INSTALL_PREFIX}/share/obs/obs-plugins/obs-streamlink/locale")
-endif()

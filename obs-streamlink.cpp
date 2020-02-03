@@ -1,26 +1,24 @@
 #include <obs-module.h>
+#include "obs-source-old.h"
 
-/* Defines common functions (required) */
+#include <windows.h>
+
+#include "python-streamlink.h"
+
 OBS_DECLARE_MODULE()
-
-/* Implements common ini-based locale (optional) */
 OBS_MODULE_USE_DEFAULT_LOCALE("obs-streamlink", "en-US")
-
-#define blog(log_level, format, ...)                    \
-	blog(log_level, "[streamlink] " format, \
-	      ##__VA_ARGS__)
-
-#define debug(format, ...) blog(LOG_DEBUG, format, ##__VA_ARGS__)
-#define info(format, ...) blog(LOG_INFO, format, ##__VA_ARGS__)
-#define warn(format, ...) blog(LOG_WARNING, format, ##__VA_ARGS__)
-
-bool obs_module_load()
+MODULE_EXPORT const char *obs_module_description(void)
 {
-	info("Initialized!");
-    return true;
+	return "Streamlink Source";
 }
 
-MODULE_EXPORT const char* obs_module_description()
+extern "C" struct obs_source_info_old streamlink_source_info;
+
+bool obs_module_load(void)
 {
-	return "OBS source plugin to receive stream using streamlink.";
+	std::string data_path = obs_get_module_data_path(obs_current_module());
+	SetDllDirectoryA(data_path.append("/Python38").c_str());
+	streamlink::Initialize();
+	obs_register_source_s(reinterpret_cast<const obs_source_info*>(&streamlink_source_info), sizeof(obs_source_info_old));
+	return true;
 }
