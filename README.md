@@ -1,3 +1,5 @@
+[中文](https://github.com/dd-center/obs-streamlink/blob/master/README_zh.md)
+
 <div align="center">
   <h1><a href="https://github.com/dd-center/obs-streamlink/" target="_blank">OBS-StreamLink</a></h1>
 
@@ -12,7 +14,7 @@
 
 </div>
 
-OBS source plugin to receive stream using streamlink.
+[OBS](https://obsproject.com/) source plugin to receive stream using [Streamlink](https://streamlink.github.io/).
 
 ## 👏 Screenshots
 
