@@ -20,7 +20,7 @@
 
 ![Screenshot1](https://raw.githubusercontent.com/dd-center/obs-streamlink/master/.github/img1.jpg)
 
-![Screenshot2](https://raw.githubusercontent.com/dd-center/obs-streamlink/master/.github/img1.jpg)
+![Screenshot2](https://raw.githubusercontent.com/dd-center/obs-streamlink/master/.github/img2.jpg)
 
 ## 🌟 功能
 
