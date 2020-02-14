@@ -18,15 +18,17 @@
 
 ## 👏 Screenshots
 
-![Screenshot1](https://user-images.githubusercontent.com/20179549/73756955-66504780-47a3-11ea-8fba-8122aeaedad4.png)
+![Screenshot1](https://raw.githubusercontent.com/dd-center/obs-streamlink/master/.github/img1.jpg)
 
-![Screenshot2](https://user-images.githubusercontent.com/20179549/73756971-6a7c6500-47a3-11ea-8871-2dcc827dca4a.png)
+![Screenshot2](https://raw.githubusercontent.com/dd-center/obs-streamlink/master/.github/img1.jpg)
 
 ## 🌟 Features
 
 - Broadcast using **ONLY OBS**. No Chrome. No Webpage. No stream transformer. No extra environment. No extra applications.
 
 - **HANDY** as you only need to provide channel link. No other configurations.
+
+- **ISOLATED AUDIO** with no need to close all other applications playing sound. The audio from livestream will go directly into OBS, enabling you to even rebroadcast multiple livestreams simultaneously! You can use a
 
 - Using powerful [**Streamlink**](https://streamlink.github.io/) to resolve stream. Born with powerful plugins and community support.
 
