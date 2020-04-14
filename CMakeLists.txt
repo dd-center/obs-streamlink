@@ -8,12 +8,12 @@ find_package(FFmpeg REQUIRED
 	COMPONENTS avcodec avfilter avdevice avutil swscale avformat swresample)
 find_package(Python3 COMPONENTS Interpreter Development)
 find_library(Python3Gen NAME "python38.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
-find_library(Python3Gen_Debug NAME "python38_d.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
+# find_library(Python3Gen_Debug NAME "python38_d.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
 
 set(CMAKE_PREFIX_PATH "${QTDIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-set(CMAKE_AUTOUIC ON)
+set(OBS_ARCH_NAME "obs-streamlink.dll") # hardcode warning
 
 find_package(Qt5Core REQUIRED)
 find_package(Qt5Widgets REQUIRED)
@@ -48,41 +48,16 @@ target_include_directories(obs-streamlink PRIVATE
 )
 set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
 target_link_options(obs-streamlink PUBLIC
-        "/NODEFAULTLIB:python38_d.lib"
-        "/NODEFAULTLIB:python3_d.lib"
+        #"/NODEFAULTLIB:python38_d.lib"
+        #"/NODEFAULTLIB:python3_d.lib"
         "/NODEFAULTLIB:python38.lib"
         "/NODEFAULTLIB:python3.lib"
 		"/delayload:python38.dll")
 
 add_custom_command(TARGET obs-streamlink POST_BUILD
-		COMMAND if $<CONFIG:Release>==1 (
-			"${CMAKE_COMMAND}" -E make_directory
-				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink"
-				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}") else (call)
-
-		COMMAND if $<CONFIG:Release>==1 (
-			"${CMAKE_COMMAND}" -E copy_directory
-				"${PROJECT_SOURCE_DIR}/data"
-				"${RELEASE_DIR}/data/obs-plugins/obs-streamlink") else (call)
-
-		COMMAND if $<CONFIG:Release>==1 (
-			"${CMAKE_COMMAND}" -E copy
-				"$<TARGET_FILE:obs-streamlink>"
-				"${RELEASE_DIR}/obs-plugins/${OBS_ARCH_NAME}") else (call)
-		)
-add_custom_command(TARGET obs-streamlink POST_BUILD
 		# Copy to obs-studio dev environment for immediate testing
-		COMMAND if $<CONFIG:Debug>==1 (
-			"${CMAKE_COMMAND}" -E copy
-				"$<TARGET_FILE:obs-streamlink>"
-				"D:/product/obs-studio-master/build/rundir/Debug/obs-plugins/64bit/${OBS_ARCH_NAME}") else (call)
+				# »¹ÊÇÅ×ÍßÐ»¶û¶¥
+		COMMAND powershell -Command "if ($<CONFIG:Release> -eq 1 ) {robocopy ${PROJECT_SOURCE_DIR}/out/build/x64-Release ${RELEASE_DIR}/obs-plugins ${OBS_ARCH_NAME};robocopy ${PROJECT_SOURCE_DIR}/data ${RELEASE_DIR}/data/obs-plugins/obs-streamlink /MIR;}"
 
-		COMMAND if $<CONFIG:Debug>==1 (
-			"${CMAKE_COMMAND}" -E make_directory
-				"D:/product/obs-studio-master/build/rundir/Debug/data/obs-plugins/obs-streamlink") else (call)
-
-		COMMAND if $<CONFIG:Debug>==1 (
-			"${CMAKE_COMMAND}" -E copy_directory
-				"${PROJECT_SOURCE_DIR}/data"
-				"D:/product/obs-studio-master/build/rundir/Debug/data/obs-plugins/obs-streamlink") else (call)
-	)
+		COMMAND powershell -Command "if ($<CONFIG:Debug> -eq 1 ) { robocopy ${PROJECT_SOURCE_DIR}/out/build/x64-Debug D:/obs-studio-master/out/build/x64-Debug/rundir/Debug/obs-plugins/64bit ${OBS_ARCH_NAME};robocopy ${PROJECT_SOURCE_DIR}/data D:/obs-studio-master/out/build/x64-Debug/rundir/Debug/data/obs-plugins/obs-streamlink /MIR;}"
+)

@@ -88,6 +88,8 @@ vendor/luajit/src/luajit
 .nuget
 .vs
 .vscode
+data/Python38/*
+release
 
 src/generated
 out

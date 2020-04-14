@@ -1,4 +1,4 @@
-#include <obs-module.h>
+﻿#include <obs-module.h>
 #include <util/platform.h>
 #include <util/dstr.h>
 #include "python-streamlink.h"
@@ -24,7 +24,9 @@ const char* ADVANCED_SETTINGS = "advanced_settings";
 const char* STREAMLINK_OPTIONS = "streamlink_options";
 const char* HTTP_PROXY = "http_proxy";
 const char* HTTPS_PROXY = "https_proxy";
-
+const char* RING_BUFFER_SIZE = "ringbuffer_size";
+const char* HLS_LIVE_EDGE = "hls_live_edge";
+const char* HLS_SEGMENT_THREADS = "hls_segment_threads";
 struct streamlink_source {
 	mp_media_t media;
 	bool media_valid;
@@ -56,6 +58,9 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 
 	const char* http_proxy_s = obs_data_get_string(settings, HTTP_PROXY);
 	const char* https_proxy_s = obs_data_get_string(settings, HTTPS_PROXY);
+	const long long ringbuffer_size = obs_data_get_int(settings, RING_BUFFER_SIZE);
+	const long long hls_live_edge = obs_data_get_int(settings, HLS_LIVE_EDGE);
+	const long long hls_segment_threads = obs_data_get_int(settings, HLS_SEGMENT_THREADS);
 	//const char* streamlink_options_s = obs_data_get_string(settings, STREAMLINK_OPTIONS);
 	streamlink::ThreadGIL state = streamlink::ThreadGIL();
 	try {
@@ -63,9 +68,15 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 			delete s->streamlink_session;
 
 		s->streamlink_session = new streamlink::Session();
-		s->streamlink_session->SetOptionString("http-proxy", http_proxy_s);
-		s->streamlink_session->SetOptionString("https-proxy", https_proxy_s);
 
+		if(strlen(http_proxy_s)>1)
+			s->streamlink_session->SetOptionString("http-proxy", http_proxy_s);
+		if (strlen(https_proxy_s) > 1)
+			s->streamlink_session->SetOptionString("https-proxy", https_proxy_s);
+		if(ringbuffer_size>0)
+			s->streamlink_session->SetOptionInt("ringbuffer-size", 1024 * static_cast<long long>(ringbuffer_size) *1024);
+		s->streamlink_session->SetOptionInt("hls-live-edge", hls_live_edge);
+		s->streamlink_session->SetOptionInt("hls-segment-threads", hls_segment_threads);
 		return true;
 	}
 	catch (std::exception & ex) {
@@ -76,6 +87,9 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 static void streamlink_source_defaults(obs_data_t *settings)
 {
 	obs_data_set_string(settings, DEFINITIONS, "best");
+	obs_data_set_int(settings, RING_BUFFER_SIZE, 16);
+	obs_data_set_int(settings, HLS_LIVE_EDGE, 8);
+	obs_data_set_int(settings, HLS_SEGMENT_THREADS, 3);
 }
 
 static void streamlink_source_start(struct streamlink_source* s);
@@ -142,6 +156,9 @@ static obs_properties_t *streamlink_source_getproperties(void *data)
 	obs_properties_t* advanced_settings = obs_properties_create();
 	prop = obs_properties_add_text(advanced_settings, HTTP_PROXY, obs_module_text(HTTP_PROXY), OBS_TEXT_DEFAULT);
 	prop = obs_properties_add_text(advanced_settings, HTTPS_PROXY, obs_module_text(HTTPS_PROXY), OBS_TEXT_DEFAULT);
+	prop = obs_properties_add_int(advanced_settings, RING_BUFFER_SIZE, obs_module_text(RING_BUFFER_SIZE), 0, 256, 1);
+	prop = obs_properties_add_int(advanced_settings, HLS_LIVE_EDGE, obs_module_text(HLS_LIVE_EDGE), 1, 20, 1);
+	prop = obs_properties_add_int(advanced_settings, HLS_SEGMENT_THREADS, obs_module_text(HLS_SEGMENT_THREADS), 1, 10, 1);
 	//prop = obs_properties_add_text(advanced_settings, STREAMLINK_OPTIONS, obs_module_text(STREAMLINK_OPTIONS), OBS_TEXT_MULTILINE);
 	obs_properties_add_group(props, ADVANCED_SETTINGS, obs_module_text(ADVANCED_SETTINGS),OBS_GROUP_NORMAL,advanced_settings);
 	return props;
@@ -355,11 +372,11 @@ static void get_nb_frames(void *data, calldata_t *cd)
 	} else {
 		FF_BLOG(LOG_DEBUG, "nb_frames not set, estimating using frame "
 				   "rate and duration");
-		AVRational avg_frame_rate = stream->avg_frame_rate;
-		frames = (int64_t)ceil((double)s->media.fmt->duration /
-				       (double)AV_TIME_BASE *
-				       (double)avg_frame_rate.num /
-				       (double)avg_frame_rate.den);
+		const AVRational avg_frame_rate = stream->avg_frame_rate;
+		frames = static_cast<int64_t>(ceil(static_cast<double>(s->media.fmt->duration) /
+			static_cast<double>(AV_TIME_BASE) *
+			static_cast<double>(avg_frame_rate.num) /
+			static_cast<double>(avg_frame_rate.den)));
 	}
 
 	calldata_set_int(cd, "num_frames", frames);
