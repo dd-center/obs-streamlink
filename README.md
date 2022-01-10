@@ -1,5 +1,8 @@
 [中文](https://github.com/dd-center/obs-streamlink/blob/master/README_zh.md)
 
+<p align="center"><h1>PROJECT RE-CONTINUED!</h1></p>
+We're back to active development of this project. Feel free to post your feedbacks and ideas!
+
 <div align="center">
   <h1><a href="https://github.com/dd-center/obs-streamlink/" target="_blank">OBS-StreamLink</a></h1>
 
