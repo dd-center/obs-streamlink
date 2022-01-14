@@ -1,0 +1,5 @@
+1. Remove all #ifdef __cpluscplus blocks
+2. Surround all codes with namespace streamlinkish_mp {}
+3. Surround #include to ffmpeg libraries with extern "C" block
+4. Patch back custom IO support
+5. Substitute all C-only code to C++ code.

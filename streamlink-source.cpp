@@ -166,14 +166,20 @@ static obs_properties_t *streamlink_source_getproperties(void *data)
 
 static void get_frame(void *opaque, struct obs_source_frame *f)
 {
-	struct streamlink_source *s = reinterpret_cast<streamlink_source_t*>(opaque);
+	auto *s = reinterpret_cast<streamlink_source_t*>(opaque);
 	obs_source_output_video(s->source, f);
 }
 
 static void preload_frame(void *opaque, struct obs_source_frame *f)
 {
-	struct streamlink_source *s = reinterpret_cast<streamlink_source_t*>(opaque);
+	auto *s = reinterpret_cast<streamlink_source_t*>(opaque);
 	obs_source_preload_video(s->source, f);
+}
+
+static void seek_frame(void* opaque, struct obs_source_frame* f)
+{
+	auto* s = reinterpret_cast<streamlink_source_t*>(opaque);
+	obs_source_set_video_frame(s->source, f);
 }
 
 static void get_audio(void *opaque, struct obs_source_audio *a)
@@ -245,6 +251,7 @@ static void streamlink_source_open(struct streamlink_source *s)
 			s,
 			get_frame,
 			preload_frame,
+			seek_frame,
 			get_audio,
 			media_stopped,
 			read_packet,
@@ -253,8 +260,11 @@ static void streamlink_source_open(struct streamlink_source *s)
 			0,
 			100,
 			VIDEO_RANGE_DEFAULT,
+			false,
 			s->is_hw_decoding,
-			false};
+			false,
+		    false
+		};
 		if (streamlink_open(s) == 0)
 			s->media_valid = mp_media_init(&s->media, &info);
 		else s->media_valid = false; // streamlink FAILED
@@ -282,7 +292,7 @@ static void streamlink_source_start(struct streamlink_source *s)
 		streamlink_source_open(s);
 
 	if (s->media_valid) {
-		mp_media_play(&s->media, false);
+		mp_media_play(&s->media, false, false);
 	}
 }
 
