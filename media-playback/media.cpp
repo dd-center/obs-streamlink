@@ -872,7 +872,9 @@ void mp_media_free(mp_media_t *media)
 	mp_kill_thread(media);
 	mp_decode_free(&media->v);
 	mp_decode_free(&media->a);
-	auto io_context = media->fmt->pb;
+	AVIOContext* io_context = nullptr;
+	if (media->fmt)
+		io_context = media->fmt->pb;
 	avformat_close_input(&media->fmt);
 	pthread_mutex_destroy(&media->mutex);
 	os_sem_destroy(media->sem);
