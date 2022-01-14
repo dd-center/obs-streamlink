@@ -114,6 +114,7 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 		session->SetOptionInt("hls-live-edge", hls_live_edge);
 		session->SetOptionInt("hls-segment-threads", hls_segment_threads);
 		session->SetOptionDouble("http-timeout", 5.0);
+		session->SetOptionString("ffmpeg-ffmpeg", "DISABLED");
 		set_streamlink_custom_options(custom_options_s, s);
 		return true;
 	}
