@@ -46,7 +46,7 @@ namespace streamlink {
     }
     void LogFailure()
     {
-        std::cerr << GetExceptionInfo() << std::endl;
+        blog(LOG_ERROR, ("[Streamlink Source]: Failed to initialize streamlink plugin: " + GetExceptionInfo()).c_str());
     }
 
     void Initialize()

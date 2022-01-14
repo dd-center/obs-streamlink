@@ -1,8 +1,19 @@
 #pragma once
 
+#include <corecrt.h>
+
 #define PY_SSIZE_T_CLEAN
+#ifdef _DEBUG
+#define STREAMLINK_DEBUG
+#endif
+
 #undef _DEBUG
 #include <Python.h>
+
+#ifdef STREAMLINK_DEBUG
+#define _DEBUG
+#endif
+
 #include <iostream>
 #include <functional>
 #include <utility>
