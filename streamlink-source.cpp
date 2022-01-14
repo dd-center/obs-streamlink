@@ -1,9 +1,9 @@
 ﻿#include <obs-module.h>
 #include <util/platform.h>
 #include <util/dstr.h>
+#include <nlohmann/json.hpp>
 #include "python-streamlink.h"
 #include "media-playback/media.h"
-
 
 using namespace streamlinkish_mp;
 
@@ -27,6 +27,7 @@ const char* HTTPS_PROXY = "https_proxy";
 const char* RING_BUFFER_SIZE = "ringbuffer_size";
 const char* HLS_LIVE_EDGE = "hls_live_edge";
 const char* HLS_SEGMENT_THREADS = "hls_segment_threads";
+const char* STREAMLINK_CUSTOM_OPTIONS = "streamlink_custom_options";
 struct streamlink_source {
 	mp_media_t media;
 	bool media_valid;
@@ -53,14 +54,48 @@ struct streamlink_source {
 };
 using streamlink_source_t = struct streamlink_source;
 
+void set_streamlink_custom_options(const char* custom_options_s, streamlink_source_t* s)
+{
+	if (strlen(custom_options_s) == 0)
+		return;
+	using namespace nlohmann;
+	auto session = s->streamlink_session;
+	try
+	{
+		auto custom_options = json::parse(custom_options_s);
+		if (!custom_options.is_object())
+			return FF_BLOG(LOG_WARNING, "Failed to set streamlink custom options, given json is not an object.");
+		for (auto& [key, value] : custom_options.items())
+		{
+			if (key.empty())
+				continue;
+			if (value.is_boolean())
+				session->SetOptionBool(key, value.get<bool>());
+			else if (value.is_number_integer())
+				session->SetOptionInt(key, value.get<int>());
+			else if (value.is_number())
+				session->SetOptionDouble(key, value.get<double>());
+			else if (value.is_string())
+				session->SetOptionString(key, value.get<std::string>().c_str());
+			else
+				FF_BLOG(LOG_WARNING, "Failed to set streamlink custom options %s, value type not recognized.", key.c_str());
+		}
+	}
+	catch (json::exception& ex)
+	{
+		FF_BLOG(LOG_WARNING, "Failed to set streamlink custom options, bad JSON string: %s", ex.what());
+	}
+}
+
 bool update_streamlink_session(void* data, obs_data_t* settings) {
-	struct streamlink_source* s = reinterpret_cast<streamlink_source_t*>(data);
+    auto* s = reinterpret_cast<streamlink_source_t*>(data);
 
 	const char* http_proxy_s = obs_data_get_string(settings, HTTP_PROXY);
 	const char* https_proxy_s = obs_data_get_string(settings, HTTPS_PROXY);
 	const long long ringbuffer_size = obs_data_get_int(settings, RING_BUFFER_SIZE);
 	const long long hls_live_edge = obs_data_get_int(settings, HLS_LIVE_EDGE);
 	const long long hls_segment_threads = obs_data_get_int(settings, HLS_SEGMENT_THREADS);
+	const char* custom_options_s = obs_data_get_string(settings, STREAMLINK_CUSTOM_OPTIONS);
 	//const char* streamlink_options_s = obs_data_get_string(settings, STREAMLINK_OPTIONS);
 	streamlink::ThreadGIL state = streamlink::ThreadGIL();
 	try {
@@ -68,15 +103,18 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 			delete s->streamlink_session;
 
 		s->streamlink_session = new streamlink::Session();
+		auto session = s->streamlink_session;
 
 		if(strlen(http_proxy_s)>1)
-			s->streamlink_session->SetOptionString("http-proxy", http_proxy_s);
+			session->SetOptionString("http-proxy", http_proxy_s);
 		if (strlen(https_proxy_s) > 1)
-			s->streamlink_session->SetOptionString("https-proxy", https_proxy_s);
+			session->SetOptionString("https-proxy", https_proxy_s);
 		if(ringbuffer_size>0)
-			s->streamlink_session->SetOptionInt("ringbuffer-size", 1024 * static_cast<long long>(ringbuffer_size) *1024);
-		s->streamlink_session->SetOptionInt("hls-live-edge", hls_live_edge);
-		s->streamlink_session->SetOptionInt("hls-segment-threads", hls_segment_threads);
+			session->SetOptionInt("ringbuffer-size", 1024 * 1024 * static_cast<long long>(ringbuffer_size));
+		session->SetOptionInt("hls-live-edge", hls_live_edge);
+		session->SetOptionInt("hls-segment-threads", hls_segment_threads);
+		session->SetOptionDouble("http-timeout", 5.0);
+		set_streamlink_custom_options(custom_options_s, s);
 		return true;
 	}
 	catch (std::exception & ex) {
@@ -86,10 +124,11 @@ bool update_streamlink_session(void* data, obs_data_t* settings) {
 }
 static void streamlink_source_defaults(obs_data_t *settings)
 {
-	obs_data_set_string(settings, DEFINITIONS, "best");
-	obs_data_set_int(settings, RING_BUFFER_SIZE, 16);
-	obs_data_set_int(settings, HLS_LIVE_EDGE, 8);
-	obs_data_set_int(settings, HLS_SEGMENT_THREADS, 3);
+	obs_data_set_default_string(settings, DEFINITIONS, "best");
+	obs_data_set_default_int(settings, RING_BUFFER_SIZE, 16);
+	obs_data_set_default_int(settings, HLS_LIVE_EDGE, 8);
+	obs_data_set_default_int(settings, HLS_SEGMENT_THREADS, 3);
+	obs_data_set_default_string(settings, STREAMLINK_CUSTOM_OPTIONS, "{}");
 }
 
 static void streamlink_source_start(struct streamlink_source* s);
@@ -159,6 +198,7 @@ static obs_properties_t *streamlink_source_getproperties(void *data)
 	prop = obs_properties_add_int(advanced_settings, RING_BUFFER_SIZE, obs_module_text(RING_BUFFER_SIZE), 0, 256, 1);
 	prop = obs_properties_add_int(advanced_settings, HLS_LIVE_EDGE, obs_module_text(HLS_LIVE_EDGE), 1, 20, 1);
 	prop = obs_properties_add_int(advanced_settings, HLS_SEGMENT_THREADS, obs_module_text(HLS_SEGMENT_THREADS), 1, 10, 1);
+	prop = obs_properties_add_text(advanced_settings, STREAMLINK_CUSTOM_OPTIONS, obs_module_text(STREAMLINK_CUSTOM_OPTIONS), OBS_TEXT_MULTILINE);
 	//prop = obs_properties_add_text(advanced_settings, STREAMLINK_OPTIONS, obs_module_text(STREAMLINK_OPTIONS), OBS_TEXT_MULTILINE);
 	obs_properties_add_group(props, ADVANCED_SETTINGS, obs_module_text(ADVANCED_SETTINGS),OBS_GROUP_NORMAL,advanced_settings);
 	return props;

@@ -45,6 +45,7 @@ target_include_directories(obs-streamlink PRIVATE
 	"${LIBOBS_INCLUDE_DIR}"
 	"${OBS_FRONTEND_INCLUDE_DIR}"
 	"${Python3_INCLUDE_DIRS}"
+	"deps/"
 )
 set(RELEASE_DIR "${PROJECT_SOURCE_DIR}/release")
 target_link_options(obs-streamlink PUBLIC
