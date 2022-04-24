@@ -39,7 +39,9 @@ We're back to active development of this project. Feel free to post your feedbac
 
 - Support all Streamlink options so it's able to meet all your needs.
 
-- Lowest performance consumption as it uses only OBS core modules. It will use **NO MORE THAN 10% of CPU** when playing. (Plugin + OBS)
+- Lowest performance consumption as it uses only OBS core modules. It will use **NO MORE THAN 10% of CPU** when playing. (Plugin + OBS, on a Ryzen 5900HS)
+
+- Custom Streamlink arguments to match your requirements!
 
 ## 🔔 Requirements
 
@@ -56,6 +58,8 @@ Just download the installer from the [latest release](https://github.com/dd-cent
 - Paste your channel link and click `Refresh Source List`. Set up proxy server address if you need.
 
 - Choose a source from the list (or automatically the best) and click OK. Your stream is now ready.
+
+- If custom Streamlink arguments is needed, put it in an JSON object, for example: `{"http-proxy":"http://localhost:1080", "https-proxy":"http://localhost:1080", "ffmpeg-verbose": true, "ffmpeg-verbose-path": "test.txt"}`
 
 ## ⚡ Performance
 
