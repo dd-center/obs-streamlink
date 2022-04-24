@@ -61,6 +61,8 @@ Just download the installer from the [latest release](https://github.com/dd-cent
 
 - If custom Streamlink arguments is needed, put it in an JSON object, for example: `{"http-proxy":"http://localhost:1080", "https-proxy":"http://localhost:1080", "ffmpeg-verbose": true, "ffmpeg-verbose-path": "test.txt"}`
 
+- If you want to add custom plugins, place the `.py` files in `(obs installation path)data/obs-plugins/obs-streamlink/Python38/Lib/site-packages/streamlink/plugins`. `plugin-dirs` Streamlink option is not supported.
+
 ## ⚡ Performance
 
 It won't consume more than 10% of CPU if there's only an instance in the active scene. Tested on several processors.
