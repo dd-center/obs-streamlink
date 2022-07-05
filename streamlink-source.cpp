@@ -481,13 +481,13 @@ static void streamlink_source_destroy(void *data)
 	bfree(s);
 }
 
-static void streamlink_source_activate(void *data)
+static void streamlink_source_show(void *data)
 {
 	struct streamlink_source *s = reinterpret_cast<streamlink_source_t*>(data);
 	streamlink_source_start(s);
 }
 
-static void streamlink_source_deactivate(void *data)
+static void streamlink_source_hide(void *data)
 {
 	struct streamlink_source *s = reinterpret_cast<streamlink_source_t*>(data);
 
@@ -496,11 +496,18 @@ static void streamlink_source_deactivate(void *data)
 	obs_source_output_video(s->source, NULL);
 	streamlink_close(s);
 }
+
+static void streamlink_source_restart(void* data)
+{
+	streamlink_source_hide(data);
+	streamlink_source_show(data);
+}
+
 extern "C" struct obs_source_info streamlink_source_info = {
 	"streamlink_source",      // id
 	OBS_SOURCE_TYPE_INPUT,    // type
 	OBS_SOURCE_ASYNC_VIDEO | OBS_SOURCE_AUDIO |
-	OBS_SOURCE_DO_NOT_DUPLICATE,    // output_flags
+	OBS_SOURCE_DO_NOT_DUPLICATE | OBS_SOURCE_CONTROLLABLE_MEDIA ,    // output_flags
 	streamlink_source_getname,                   // get_name
 	streamlink_source_create,                     // create
 	streamlink_source_destroy,                    // destroy
@@ -509,9 +516,9 @@ extern "C" struct obs_source_info streamlink_source_info = {
 	streamlink_source_defaults,                   // get_defaults
 	streamlink_source_getproperties,                 // get_properties
 	streamlink_source_update,                     // update
-	streamlink_source_activate,                    // activate
-	streamlink_source_deactivate,                    // deactivate
-	nullptr, nullptr,           // show, hide
+	nullptr,                    // activate
+	nullptr,                    // deactivate
+	streamlink_source_show, streamlink_source_hide,           // show, hide
 	streamlink_source_tick,                    // video_tick
 	nullptr,   // video_render
 	nullptr, nullptr,                    // filter_video, filter_audio
@@ -519,5 +526,6 @@ extern "C" struct obs_source_info streamlink_source_info = {
 	nullptr, nullptr,            // save, load
 	nullptr, nullptr, nullptr, nullptr,  // mouse_move, mouse_wheel, focus, key_click
 	nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr, nullptr,nullptr,
-	OBS_ICON_TYPE_MEDIA
+	OBS_ICON_TYPE_MEDIA,
+	nullptr, streamlink_source_restart
 };
