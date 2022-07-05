@@ -7,17 +7,14 @@
 #define STREAMLINK_DEBUG
 #endif
 
-#undef _DEBUG
+#undef _DEBUG  // NOLINT(clang-diagnostic-reserved-macro-identifier)
 #include <Python.h>
 
 #ifdef STREAMLINK_DEBUG
 #define _DEBUG
 #endif
 
-#include <iostream>
 #include <functional>
-#include <utility>
-#include <fstream>
 
 #include <map>
 namespace streamlink {
@@ -70,16 +67,16 @@ namespace streamlink {
 
         call_failure() = default;
 
-        explicit call_failure(char const* _Message)
-            : exception(_Message)
+        explicit call_failure(char const* message)
+            : exception(message)
         { }
 
-        call_failure(char const* _Message, int i)
-            : exception(_Message, i)
+        call_failure(char const* message, int i)
+            : exception(message, i)
         { }
 
-        explicit call_failure(exception const& _Other)
-            : exception(_Other)
+        explicit call_failure(exception const& other)
+            : exception(other)
         { }
     };
     class invalid_underlying_object : public std::exception {};
@@ -88,12 +85,12 @@ namespace streamlink {
     class Stream : public PyObjectHolder
     {
     public:
-        Stream(PyObject* underlying);
+        Stream(PyObject* u);
 
         Stream(Stream&) = delete;
         Stream(Stream&& another) noexcept;
 
-        ssize_t Read(unsigned char* buf, const ssize_t len);
+        int Read(unsigned char* buf, const int len);
         void Close();
 
     };
@@ -102,7 +99,7 @@ namespace streamlink {
     {
     public:
         std::string name;
-        StreamInfo(std::string name, PyObject* underlying);
+        StreamInfo(std::string name, PyObject* u);
         StreamInfo(StreamInfo&& another) noexcept;
 
         PyObject* Open();
@@ -115,7 +112,7 @@ namespace streamlink {
     public:
         Session();
 
-        std::map<std::string, StreamInfo> GetStreamsFromUrl(std::string url);
+        std::map<std::string, StreamInfo> GetStreamsFromUrl(std::string const& url);
 
         void SetOption(std::string const& name, PyObject* value);
         void SetOptionString(std::string const& name, std::string const& value);

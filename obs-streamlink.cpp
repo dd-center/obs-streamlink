@@ -2,7 +2,7 @@
 #include "obs-source-old.h"
 
 #include <filesystem>
-#include <windows.h>
+#include <Windows.h>
 
 #include "python-streamlink.h"
 
@@ -13,7 +13,7 @@ MODULE_EXPORT const char *obs_module_description(void)
 	return "Streamlink Source";
 }
 
-extern "C" struct obs_source_info_old streamlink_source_info;
+extern "C" obs_source_info_old streamlink_source_info;
 
 bool obs_module_load(void)
 {

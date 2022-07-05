@@ -1,6 +1,9 @@
 #pragma once
 #include <obs-source.h>
 
+/**
+ * This is for compatibility.
+ */
 struct obs_source_info_old {
 	/* ----------------------------------------------------------------- */
 	/* Required implementation*/

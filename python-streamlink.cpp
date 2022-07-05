@@ -1,7 +1,9 @@
+// ReSharper disable CppMemberFunctionMayBeConst
+
 #include "python-streamlink.h"
 #include <obs-module.h>
 
-#include <windows.h>
+#include <Windows.h>
 namespace streamlink {
     bool loaded = false;
     bool loadingFailed = false;
@@ -103,13 +105,13 @@ namespace streamlink {
         return *this;
     }
     
-    Stream::Stream(PyObject* underlying) : PyObjectHolder(underlying)
+    Stream::Stream(PyObject* u) : PyObjectHolder(u)
     {
     }
     Stream::Stream(Stream&& another) noexcept : PyObjectHolder(std::move(another))
     {
     }
-    ssize_t Stream::Read(unsigned char* buf, const ssize_t len)
+    int Stream::Read(unsigned char* buf, const int len)
     {
         auto iucallable = PyObject_GetAttrString(underlying, "read");
         if (iucallable == nullptr)
@@ -131,7 +133,7 @@ namespace streamlink {
         std::memcpy(buf, buf1, readLen);
 
         if (readLen == 0) throw stream_ended();
-        return readLen;
+        return static_cast<int>(readLen);
     }
     void Stream::Close()
     {
@@ -147,7 +149,7 @@ namespace streamlink {
         if (result == nullptr)
             throw call_failure(GetExceptionInfo().c_str());
     }
-    StreamInfo::StreamInfo(std::string name, PyObject* underlying) : PyObjectHolder(underlying), name(std::move(name))
+    StreamInfo::StreamInfo(std::string name, PyObject* u) : PyObjectHolder(u), name(std::move(name))
     {
 
     }
@@ -202,7 +204,7 @@ streamlink::Session::Session()
 }
 
 namespace streamlink {
-    std::map<std::string, StreamInfo> Session::GetStreamsFromUrl(std::string url)
+    std::map<std::string, StreamInfo> Session::GetStreamsFromUrl(const std::string& url)
     {
         auto streamsCallable = PyObject_GetAttrString(underlying, static_cast<const char*>("streams"));
         if (streamsCallable == nullptr) throw call_failure(GetExceptionInfo().c_str());
@@ -210,7 +212,7 @@ namespace streamlink {
         if (!PyCallable_Check(streamsCallable)) throw invalid_underlying_object();
 
         if (!loaded) throw not_loaded();
-        auto urlStrObj = PyUnicode_FromStringAndSize(url.c_str(), url.size());
+        auto urlStrObj = PyUnicode_FromStringAndSize(url.c_str(), static_cast<ssize_t>(url.size()));
         auto urlStrObjGuard = PyObjectHolder(urlStrObj, false);
         auto args = PyTuple_Pack(1, urlStrObj);
         auto argsGuard = PyObjectHolder(args, false);
@@ -243,7 +245,7 @@ namespace streamlink {
 void streamlink::Session::SetOption(std::string const& name, PyObject* value)
 {
     if (!loaded) throw not_loaded();
-    auto nameObj = PyUnicode_FromStringAndSize(name.c_str(), name.size());
+    auto nameObj = PyUnicode_FromStringAndSize(name.c_str(), static_cast<ssize_t>(name.size()));
     auto nameObjGuard = PyObjectHolder(nameObj, false);
 
     auto args = PyTuple_Pack(2, nameObj, value);
@@ -257,7 +259,7 @@ void streamlink::Session::SetOption(std::string const& name, PyObject* value)
 
 void streamlink::Session::SetOptionString(std::string const& name, std::string const& value)
 {
-    auto valueObj = PyUnicode_FromStringAndSize(value.c_str(), value.size());
+    auto valueObj = PyUnicode_FromStringAndSize(value.c_str(), static_cast<ssize_t>(value.size()));
     auto valueObjGuard = PyObjectHolder(valueObj, false);
     SetOption(name, valueObj);
 }
