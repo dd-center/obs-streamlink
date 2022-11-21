@@ -1,7 +1,9 @@
 [中文](https://github.com/dd-center/obs-streamlink/blob/master/README_zh.md)
 
-<p align="center"><h1>PROJECT RE-CONTINUED!</h1></p>
-We're back to active development of this project. Feel free to post your feedbacks and ideas!
+<p align="center"><h1>About the OBS 28 port and cross-platform support</h1></p>
+I'm current working on OBS 28 and Linux support for OBS-Streamlink. However I have limited time these days, so it may cost more time before a working version is released.
+
+For the macOS support, since I don't own a mac, currently I can't provide support for it (notably, some nasty delayed dynamic loading is required, so it's more thing to do than just compile a binary using CMake).
 
 <div align="center">
   <h1><a href="https://github.com/dd-center/obs-streamlink/" target="_blank">OBS-StreamLink</a></h1>
