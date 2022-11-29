@@ -369,10 +369,8 @@ static void streamlink_source_update(void *data, obs_data_t *settings)
 		bfree(s->live_room_url);
 	const char* live_room_url = obs_data_get_string(settings, URL);
 	s->live_room_url = live_room_url ? bstrdup(live_room_url) : NULL;
-
-#ifndef __APPLE__
+	
 	s->is_hw_decoding = obs_data_get_bool(settings, HW_DECODE);
-#endif
 
 	// Removed due to confusion, see `streamlink_source_getproperties`.
 	//if (s->ffmpeg_options)
