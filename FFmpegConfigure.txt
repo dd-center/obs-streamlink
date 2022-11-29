@@ -1,0 +1,1 @@
+./configure --enable-asm --enable-x86asm --target-os=win64 --arch=x86_64 --toolchain=msvc --disable-encoders --enable-shared --disable-programs --disable-indevs --disable-outdevs --disable-muxers
