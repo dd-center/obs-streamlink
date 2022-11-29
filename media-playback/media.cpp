@@ -911,7 +911,7 @@ bool mp_media_init(mp_media_t *media, const struct mp_media_info *info)
 	media->buffering = info->buffering;
 	media->speed = info->speed;
 	media->is_local_file = info->is_local_file;
-	media->read_buffer = reinterpret_cast<unsigned char*>(av_malloc(READ_BUFFER_SIZE));
+	media->read_buffer = static_cast<unsigned char*>(av_malloc(READ_BUFFER_SIZE));
 	da_init(media->packet_pool);
 
 	if (!info->is_local_file || media->speed < 1 || media->speed > 200)

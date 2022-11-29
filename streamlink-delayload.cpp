@@ -15,7 +15,12 @@ FARPROC WINAPI obs_streamlink_delay_load(unsigned dliNotify, PDelayLoadInfo pdli
         auto pathFFmpeg = obs_streamlink_data_path / "ffmpeg" / pdli->szDll;
         auto pathPython = obs_streamlink_data_path / obs_streamlink_python_ver / pdli->szDll;
         if (exists(pathFFmpeg))
-            return reinterpret_cast<FARPROC>(LoadLibraryW(pathFFmpeg.wstring().c_str()));
+        {
+            auto directLoad = LoadLibraryA(pdli->szDll);
+            if (!directLoad)
+                return reinterpret_cast<FARPROC>(LoadLibraryW(pathFFmpeg.wstring().c_str()));
+            return reinterpret_cast<FARPROC>(directLoad);
+        }
         if (exists(pathPython))
             return reinterpret_cast<FARPROC>(LoadLibraryW(pathPython.wstring().c_str()));
     }
