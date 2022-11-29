@@ -3,6 +3,8 @@
 <p align="center"><h1>PROJECT RE-CONTINUED!</h1></p>
 We're back to active development of this project. Feel free to post your feedbacks and ideas!
 
+The support for OBS 28 has been done. You're extremely welcomed to post your feedbacks!
+
 <div align="center">
   <h1><a href="https://github.com/dd-center/obs-streamlink/" target="_blank">OBS-StreamLink</a></h1>
 
@@ -45,7 +47,7 @@ We're back to active development of this project. Feel free to post your feedbac
 
 ## 🔔 Requirements
 
-OBS Only (>=24.0).
+OBS Only (>=28.0).
 
 ## 💨 Install
 
