@@ -16,23 +16,20 @@
 
 #pragma once
 
+extern "C" {
 #include <util/circlebuf.h>
-
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4204)
 #endif
-
-extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <util/threading.h>
-}
-
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+}
 
 #if LIBAVCODEC_VERSION_MAJOR >= 58
 #define CODEC_CAP_TRUNC AV_CODEC_CAP_TRUNCATED
@@ -43,6 +40,7 @@ extern "C" {
 #endif
 
 namespace streamlinkish_mp {
+
 struct mp_media;
 
 struct mp_decode {
@@ -52,7 +50,7 @@ struct mp_decode {
 
 	AVCodecContext *decoder;
 	AVBufferRef *hw_ctx;
-	AVCodec *codec;
+	const AVCodec *codec;
 
 	int64_t last_duration;
 	int64_t frame_pts;
@@ -66,9 +64,10 @@ struct mp_decode {
 	bool frame_ready;
 	bool eof;
 	bool hw;
+	uint16_t max_luminance;
 
-	AVPacket orig_pkt;
-	AVPacket pkt;
+	AVPacket *orig_pkt;
+	AVPacket *pkt;
 	bool packet_pending;
 	struct circlebuf packets;
 };
@@ -82,4 +81,5 @@ extern void mp_decode_clear_packets(struct mp_decode *decode);
 extern void mp_decode_push_packet(struct mp_decode *decode, AVPacket *pkt);
 extern bool mp_decode_next(struct mp_decode *decode);
 extern void mp_decode_flush(struct mp_decode *decode);
+
 }

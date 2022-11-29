@@ -304,6 +304,7 @@ static void streamlink_source_open(struct streamlink_source *s)
 			read_packet,
 			s->live_room_url,
 			nullptr,
+			nullptr, // TODO props for ffmpeg-param
 			0,
 			100,
 			VIDEO_RANGE_DEFAULT,

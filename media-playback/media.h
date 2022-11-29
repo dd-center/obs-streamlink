@@ -16,31 +16,29 @@
 
 #pragma once
 
+extern "C" {
 #include <obs.h>
-#include "decode.h"
-
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable : 4244)
 #pragma warning(disable : 4204)
 #endif
-
-extern "C" {
 #include <libavformat/avformat.h>
 #include <libavcodec/avcodec.h>
 #include <libswscale/swscale.h>
 #include <util/threading.h>
-}
-
 #ifdef _MSC_VER
 #pragma warning(pop)
 #endif
+}
+
+#include "decode.h"
 
 namespace streamlinkish_mp {
 typedef void (*mp_video_cb)(void *opaque, struct obs_source_frame *frame);
 typedef void (*mp_audio_cb)(void *opaque, struct obs_source_audio *audio);
 typedef void (*mp_stop_cb)(void *opaque);
-typedef int (*mp_read_cb)(void *opaque, uint8_t *buf, int buf_size);
+typedef int (*mp_read_cb)(void* opaque, uint8_t* buf, int buf_size);
 
 struct mp_media {
 	AVFormatContext *fmt;
@@ -55,6 +53,7 @@ struct mp_media {
 
 	char *path;
 	char *format_name;
+	char *ffmpeg_options;
 	int buffering;
 	int speed;
 
@@ -64,6 +63,7 @@ struct mp_media {
 	int scale_linesizes[4];
 	uint8_t *scale_pic[4];
 
+	DARRAY(AVPacket *) packet_pool;
 	struct mp_decode v;
 	struct mp_decode a;
 	bool is_local_file;
@@ -120,6 +120,7 @@ struct mp_media_info {
 
 	const char *path;
 	const char *format;
+	char *ffmpeg_options;
 	int buffering;
 	int speed;
 	enum video_range_type force_range;
@@ -138,9 +139,6 @@ extern void mp_media_play_pause(mp_media_t *media, bool pause);
 extern int64_t mp_get_current_time(mp_media_t *m);
 extern void mp_media_seek_to(mp_media_t *m, int64_t pos);
 
-}
 /* #define DETAILED_DEBUG_INFO */
 
-#if LIBAVCODEC_VERSION_INT >= AV_VERSION_INT(57, 48, 101)
-#define USE_NEW_FFMPEG_DECODE_API
-#endif
+}

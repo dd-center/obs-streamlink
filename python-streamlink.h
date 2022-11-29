@@ -14,8 +14,8 @@
 #define _DEBUG
 #endif
 
+#include <string>
 #include <functional>
-
 #include <map>
 namespace streamlink {
     extern bool loaded;
