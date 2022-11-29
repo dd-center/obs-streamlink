@@ -8,6 +8,9 @@
 #endif
 
 #undef _DEBUG  // NOLINT(clang-diagnostic-reserved-macro-identifier)
+//#ifdef STREAMLINK_DEBUG // requires debugging version of Python
+//#define Py_REF_DEBUG
+//#endif
 #include <Python.h>
 
 #ifdef STREAMLINK_DEBUG
@@ -51,11 +54,9 @@ namespace streamlink {
     {
     public:
         PyObject* underlying;
-        PyObjectHolder() : PyObjectHolder(nullptr, false) {
-
-        }
+        PyObjectHolder() : PyObjectHolder(nullptr, false) {}
         PyObjectHolder(PyObject* underlying, bool inc = true);
-        ~PyObjectHolder();
+        virtual ~PyObjectHolder();
         PyObjectHolder(PyObjectHolder&& another)noexcept;
 
         PyObjectHolder& operator=(PyObjectHolder&& another) noexcept;
@@ -111,6 +112,7 @@ namespace streamlink {
         PyObjectHolder set_optionGuard;
     public:
         Session();
+        ~Session() override;
 
         std::map<std::string, StreamInfo> GetStreamsFromUrl(std::string const& url);
 

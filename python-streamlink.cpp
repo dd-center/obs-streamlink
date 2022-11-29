@@ -90,7 +90,10 @@ namespace streamlink {
     PyObjectHolder::~PyObjectHolder()
     {
         if (underlying != nullptr)
+        {
+            ThreadGIL state = ThreadGIL();
             Py_DECREF(underlying);
+        }
     }
     PyObjectHolder::PyObjectHolder(PyObjectHolder&& another) noexcept
     {
@@ -197,16 +200,23 @@ streamlink::Session::Session()
     if (underlying == nullptr)
         throw call_failure(GetExceptionInfo().c_str());
 
-    set_option = PyObject_GetAttrString(underlying, static_cast<const char*>("set_option"));
+    //Py_INCREF(underlying);
+    set_option = PyObject_GetAttrString(underlying, "set_option");
     if (set_option == nullptr) throw call_failure(GetExceptionInfo().c_str());
     set_optionGuard = PyObjectHolder(set_option, false);
     if (!PyCallable_Check(set_option)) throw invalid_underlying_object();
 }
 
+
+streamlink::Session::~Session()
+{
+}
+
+
 namespace streamlink {
     std::map<std::string, StreamInfo> Session::GetStreamsFromUrl(const std::string& url)
     {
-        auto streamsCallable = PyObject_GetAttrString(underlying, static_cast<const char*>("streams"));
+        auto streamsCallable = PyObject_GetAttrString(underlying, "streams");
         if (streamsCallable == nullptr) throw call_failure(GetExceptionInfo().c_str());
         auto streamsCallableGuard = PyObjectHolder(streamsCallable, false);
         if (!PyCallable_Check(streamsCallable)) throw invalid_underlying_object();
@@ -229,12 +239,12 @@ namespace streamlink {
         auto ret = std::map<std::string, StreamInfo>();
         for (int i = 0; i < size; i++)
         {
-            auto itemTuple = PyList_GetItem(items, i);
+            auto itemTuple = PyList_GetItem(items, i); // borrowed
             if (PyTuple_Size(itemTuple) != 2) continue;
             auto nameObj = PyTuple_GetItem(itemTuple, 0);
-            auto valueObj = PyTuple_GetItem(itemTuple, 1);
+            auto valueObj = PyTuple_GetItem(itemTuple, 1); // no need to +ref, done by `StreamInfo` ctor
             auto name = PyStringToString(nameObj);
-
+            
             ret.emplace(std::piecewise_construct, std::forward_as_tuple(name), std::forward_as_tuple(name, valueObj));
             //ret.emplace(name, StreamInfo(name, valueObj));
         }
