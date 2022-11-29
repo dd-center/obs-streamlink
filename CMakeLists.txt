@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.5)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 project(obs-streamlink)
 
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
@@ -10,15 +10,12 @@ find_package(Python3 3.8 EXACT REQUIRED COMPONENTS Interpreter Development)
 find_library(Python3Gen NAME "python38.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
 #find_library(Python3Gen_Debug NAME "python38_d.lib" PATHS "${Python3_LIBRARY_DIRS}" NO_DEFAULT_PATH)
 
-set(CMAKE_PREFIX_PATH "${QTDIR}")
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
-#set(OBS_ARCH_NAME "obs-streamlink.dll") # hardcode warning
-
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
 
 add_library(obs-streamlink MODULE
     obs-streamlink.cpp
+    streamlink-delayload.cpp
     streamlink-source.cpp
     media-playback/decode.cpp
     media-playback/media.cpp
@@ -28,8 +25,6 @@ target_link_libraries(obs-streamlink PRIVATE
     "${LIBOBS_LIB}"
     "${W32_PTHREADS_LIB}"
     "${OBS_FRONTEND_LIB}"
-    Qt6::Core
-    Qt6::Widgets
     ${FFMPEG_LIBRARIES}
     delayimp)
 if (CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -38,8 +33,6 @@ else()
     target_link_libraries(obs-streamlink PRIVATE "${Python3Gen}")
 endif()
 target_include_directories(obs-streamlink PRIVATE
-    ${Qt5Core_INCLUDES}
-    ${Qt5Widgets_INCLUDES}
     ${FFMPEG_INCLUDE_DIRS}
     "${W32_PTHREADS_INCLUDES}"
     "${LIBOBS_INCLUDE_DIR}"
@@ -53,7 +46,15 @@ target_link_options(obs-streamlink PUBLIC
         "/NODEFAULTLIB:python3_d.lib"
         "/NODEFAULTLIB:python38.lib"
         "/NODEFAULTLIB:python3.lib"
-        "/delayload:python38.dll")
+        "/delayload:python38.dll"
+        "/delayload:avcodec-59.dll"
+        "/delayload:avdevice-59.dll"
+        "/delayload:avfilter-8.dll"
+        "/delayload:avformat-59.dll"
+        "/delayload:avutil-57.dll"
+        "/delayload:swresample-4.dll"
+        "/delayload:swscale-6.dll"
+)
 
 add_custom_command(TARGET obs-streamlink POST_BUILD
         # Copy to obs-studio dev environment for immediate testing
