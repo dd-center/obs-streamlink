@@ -360,11 +360,10 @@ static void mp_media_next_audio(mp_media_t *m)
 	struct obs_source_audio audio = {0};
 	AVFrame *f = d->frame;
 	int channels;
-#if LIBAVFORMAT_VERSION_INT < AV_VERSION_INT(59, 19, 100)
-	channels = f->channels;
-#else
-	channels = f->ch_layout.nb_channels;
-#endif
+	if (avformat_version() < AV_VERSION_INT(59, 19, 100))
+		channels = f->channels;
+	else
+	    channels = f->ch_layout.nb_channels;
 
 	if (!mp_media_can_play_frame(m, d))
 		return;
