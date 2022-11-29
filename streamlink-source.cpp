@@ -31,6 +31,10 @@ const char* RING_BUFFER_SIZE = "ringbuffer_size";
 const char* HLS_LIVE_EDGE = "hls_live_edge";
 const char* HLS_SEGMENT_THREADS = "hls_segment_threads";
 const char* STREAMLINK_CUSTOM_OPTIONS = "streamlink_custom_options";
+const char* FFMPEG_CUSTOM_OPTIONS = "ffmpeg_custom_options";
+const char* STREAMLINK_CUSTOM_OPTIONS_TOOLTIP = "streamlink_custom_options_tooltip";
+const char* FFMPEG_CUSTOM_OPTIONS_TOOLTIP = "ffmpeg_custom_options_tooltip";
+
 struct streamlink_source {
 	mp_media_t media{};
 	bool media_valid{};
@@ -49,6 +53,7 @@ struct streamlink_source {
 	char* definitions{};
 	std::vector<std::string>* available_definitions{};
 
+	char* ffmpeg_options{};
 	bool is_hw_decoding{};
 	bool is_setting_frame_open=false;
 
@@ -203,9 +208,19 @@ static obs_properties_t *streamlink_source_getproperties(void *data)
     prop = obs_properties_add_int(advanced_settings, RING_BUFFER_SIZE, obs_module_text(RING_BUFFER_SIZE), 0, 256, 1);
 	prop = obs_properties_add_int(advanced_settings, HLS_LIVE_EDGE, obs_module_text(HLS_LIVE_EDGE), 1, 20, 1);
 	prop = obs_properties_add_int(advanced_settings, HLS_SEGMENT_THREADS, obs_module_text(HLS_SEGMENT_THREADS), 1, 10, 1);
+
 	prop = obs_properties_add_text(advanced_settings, STREAMLINK_CUSTOM_OPTIONS, obs_module_text(STREAMLINK_CUSTOM_OPTIONS), OBS_TEXT_MULTILINE);
-	//prop = obs_properties_add_text(advanced_settings, STREAMLINK_OPTIONS, obs_module_text(STREAMLINK_OPTIONS), OBS_TEXT_MULTILINE);
+	obs_property_set_long_description(prop, obs_module_text(STREAMLINK_CUSTOM_OPTIONS_TOOLTIP));
+
+	// Removed since this is rather impratical, this only applies to "input" parameters of the "playback" FFmpeg.
+	// Therefore it can't affect the "demux-remuxing" FFmpeg used by the Streamlink. Only the decoding and playback one.
+	// Filters placed here is useless.
+	// Introducing this options will only cause confusion.
+	//prop = obs_properties_add_text(advanced_settings, FFMPEG_CUSTOM_OPTIONS, obs_module_text(FFMPEG_CUSTOM_OPTIONS), OBS_TEXT_MULTILINE);
+	//obs_property_set_long_description(prop, obs_module_text(FFMPEG_CUSTOM_OPTIONS_TOOLTIP));
+	
 	obs_properties_add_group(props, ADVANCED_SETTINGS, obs_module_text(ADVANCED_SETTINGS),OBS_GROUP_NORMAL,advanced_settings);
+
 	return props;
 	// ReSharper restore CppAssignedValueIsNeverUsed
 	// ReSharper restore CppJoinDeclarationAndAssignment
@@ -304,7 +319,7 @@ static void streamlink_source_open(struct streamlink_source *s)
 			read_packet,
 			s->live_room_url,
 			nullptr,
-			nullptr, // TODO props for ffmpeg-param
+			s->ffmpeg_options,
 			0,
 			100,
 			VIDEO_RANGE_DEFAULT,
@@ -354,9 +369,17 @@ static void streamlink_source_update(void *data, obs_data_t *settings)
 		bfree(s->live_room_url);
 	const char* live_room_url = obs_data_get_string(settings, URL);
 	s->live_room_url = live_room_url ? bstrdup(live_room_url) : NULL;
+
 #ifndef __APPLE__
 	s->is_hw_decoding = obs_data_get_bool(settings, HW_DECODE);
 #endif
+
+	// Removed due to confusion, see `streamlink_source_getproperties`.
+	//if (s->ffmpeg_options)
+	//	bfree(s->ffmpeg_options);
+	//const char* ffmpeg_options = obs_data_get_string(settings, FFMPEG_CUSTOM_OPTIONS);
+	//s->ffmpeg_options = ffmpeg_options ? bstrdup(ffmpeg_options) : NULL;
+
 	if (s->media_valid) {
 		mp_media_free(&s->media);
 		streamlink_close(s);
